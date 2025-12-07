@@ -111,9 +111,17 @@ res <- results(
 # Summary of results
 summary(res)
 
+# Add gene symbols to results
+cat("\nAdding gene symbols to results...\n")
+ensembl2gene <- read.table("data/Ensembl2gene.tsv",
+                          header = TRUE,
+                          sep = "\t")
+res$gene_symbol <- ensembl2gene$Gene[match(rownames(res), ensembl2gene$Ensembl)]
+
 # Order by adjusted p-value
 res_ordered <- res[order(res$padj), ]
-head(res_ordered, 10)
+cat("\nTop 10 Differentially Expressed Genes:\n")
+print(res_ordered[1:10, c("gene_symbol", "baseMean", "log2FoldChange", "padj")])
 
 ## Step 6: Count Significant Genes ----
 cat("\n--- Step 6: Summary Statistics ---\n")
@@ -136,13 +144,21 @@ cat("\n--- Step 7: Creating Volcano Plot ---\n")
 res_df <- as.data.frame(res)
 res_df$significant <- ifelse(res_df$padj < 0.05, "Significant", "Not Significant")
 
+# Label top 10 genes
+res_df$label <- ""
+top_10_indices <- order(res_df$padj)[1:10]
+res_df$label[top_10_indices] <- res_df$gene_symbol[top_10_indices]
+
 # Create volcano plot
+library(ggrepel)
 volcano_plot <- ggplot(res_df, aes(x = log2FoldChange, y = -log10(padj))) +
   geom_point(aes(color = significant), alpha = 0.6, size = 1.5) +
   scale_color_manual(values = c("Not Significant" = "gray", "Significant" = "red")) +
+  geom_text_repel(aes(label = label), size = 3, max.overlaps = 20) +
   theme_minimal() +
   labs(
     title = "Volcano Plot: Late vs Early Stage",
+    subtitle = "Top 10 genes labeled",
     x = "Log2 Fold Change",
     y = "-Log10 Adjusted P-value"
   ) +
@@ -275,8 +291,64 @@ metabolic_pathways <- gsaSummary[
 cat("\nTop Metabolic Pathways:\n")
 print(head(metabolic_pathways, 15))
 
-## Step 8: Save Results ----
-cat("\n--- Step 8: Saving Results ---\n")
+## Step 8: Visualize Top Pathways with Heatmap ----
+cat("\n--- Step 8: Creating Pathway Enrichment Heatmap ---\n")
+
+# Get top 20 pathways by significance
+top_pathways <- head(gsaSummary, 20)
+
+# Create a matrix for heatmap (p-values and direction)
+# Using distinct directional p-values
+heatmap_data <- data.frame(
+  Up = -log10(top_pathways$`p adj (dist.dir.up)`),
+  Down = -log10(top_pathways$`p adj (dist.dir.dn)`)
+)
+rownames(heatmap_data) <- rownames(top_pathways)
+
+# Clean up pathway names (remove "GOBP_" prefix and make readable)
+rownames(heatmap_data) <- gsub("GOBP_", "", rownames(heatmap_data))
+rownames(heatmap_data) <- gsub("_", " ", rownames(heatmap_data))
+rownames(heatmap_data) <- substr(rownames(heatmap_data), 1, 50)  # Truncate long names
+
+# Create heatmap
+library(pheatmap)
+pathway_heatmap <- pheatmap(
+  as.matrix(heatmap_data),
+  cluster_cols = FALSE,
+  cluster_rows = TRUE,
+  color = colorRampPalette(c("white", "orange", "red"))(50),
+  main = "Top 20 Enriched Pathways (GSEA)",
+  fontsize_row = 8,
+  fontsize_col = 10,
+  angle_col = 0,
+  cellwidth = 40,
+  cellheight = 12,
+  border_color = "gray90",
+  na_col = "white"
+)
+
+# Save heatmap
+pdf("figures/Module2_pathway_heatmap.pdf", width = 8, height = 10)
+pheatmap(
+  as.matrix(heatmap_data),
+  cluster_cols = FALSE,
+  cluster_rows = TRUE,
+  color = colorRampPalette(c("white", "orange", "red"))(50),
+  main = "Top 20 Enriched Pathways (GSEA)",
+  fontsize_row = 8,
+  fontsize_col = 10,
+  angle_col = 0,
+  cellwidth = 40,
+  cellheight = 12,
+  border_color = "gray90",
+  na_col = "white"
+)
+dev.off()
+
+cat("Pathway heatmap saved to figures/Module2_pathway_heatmap.pdf\n")
+
+## Step 9: Save Results ----
+cat("\n--- Step 9: Saving Results ---\n")
 
 # Save full GSEA results
 write.table(
