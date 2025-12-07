@@ -260,37 +260,9 @@ Key Metabolic Reprogramming Identified!
 
 ---
 
-## ❓ FAQ
-
-**Q: Do I need to install anything before the workshop?**
-A: No! Installation is part of the workshop (first 30 minutes).
-
-**Q: What if I use Windows? Or Mac?**
-A: Both are fully supported with detailed step-by-step instructions.
-
-**Q: What if I have an Apple Silicon Mac (M1/M2/M3)?**
-A: Special instructions included for Apple Silicon.
-
-**Q: I'm not familiar with R. Can I still attend?**
-A: Basic R knowledge is helpful but we'll explain everything step-by-step.
-
-**Q: What if I finish early?**
-A: We have MOFA2 bonus materials! You can work through them during workshop or take home.
-
-**Q: What is MOFA2?**
-A: Multi-omics factor analysis - bonus advanced content for fast learners. Completely optional!
-
-**Q: Can I use this for my own data later?**
-A: Yes! The guide explains how to apply to your own datasets.
-
-**Q: What if I get stuck during installation?**
-A: Instructor will help! Detailed troubleshooting for both platforms included.
-
----
-
 ## 📧 Contact
 
-**Questions?** Contact workshop instructor: [your.email@institution.edu]
+**Questions?** Contact workshop instructor: cheng.5.zhang@kcl.ac.uk
 
 **Issues?** Please report any errors or suggestions
 
