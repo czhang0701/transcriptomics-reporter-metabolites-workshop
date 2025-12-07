@@ -142,7 +142,13 @@ cat("\n--- Step 7: Creating Volcano Plot ---\n")
 
 # Prepare data for plotting
 res_df <- as.data.frame(res)
-res_df$significant <- ifelse(res_df$padj < 0.05, "Significant", "Not Significant")
+
+# Categorize genes by regulation direction
+res_df$regulation <- "Not Significant"
+res_df$regulation[res_df$padj < 0.05 & res_df$log2FoldChange > 0] <- "Up-regulated"
+res_df$regulation[res_df$padj < 0.05 & res_df$log2FoldChange < 0] <- "Down-regulated"
+res_df$regulation <- factor(res_df$regulation,
+                            levels = c("Up-regulated", "Down-regulated", "Not Significant"))
 
 # Label top 10 genes
 res_df$label <- ""
@@ -152,18 +158,21 @@ res_df$label[top_10_indices] <- res_df$gene_symbol[top_10_indices]
 # Create volcano plot
 library(ggrepel)
 volcano_plot <- ggplot(res_df, aes(x = log2FoldChange, y = -log10(padj))) +
-  geom_point(aes(color = significant), alpha = 0.6, size = 1.5) +
-  scale_color_manual(values = c("Not Significant" = "gray", "Significant" = "red")) +
+  geom_point(aes(color = regulation), alpha = 0.6, size = 1.5) +
+  scale_color_manual(values = c("Up-regulated" = "red",
+                                 "Down-regulated" = "blue",
+                                 "Not Significant" = "gray")) +
   geom_text_repel(aes(label = label), size = 3, max.overlaps = 20) +
   theme_minimal() +
   labs(
     title = "Volcano Plot: Late vs Early Stage",
     subtitle = "Top 10 genes labeled",
-    x = "Log2 Fold Change",
-    y = "-Log10 Adjusted P-value"
+    x = "Log2 Fold Change (Late vs Early)",
+    y = "-Log10 Adjusted P-value",
+    color = "Regulation"
   ) +
-  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "blue") +
-  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "blue")
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "black", alpha = 0.5) +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "black", alpha = 0.5)
 
 print(volcano_plot)
 
