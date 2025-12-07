@@ -203,7 +203,7 @@ ensembl2gene <- read.table("data/Ensembl2gene.tsv",
                           sep = "\t")
 
 # Match Ensembl IDs to gene symbols
-res$gene_symbol <- ensembl2gene$Gene_name[match(rownames(res), ensembl2gene$Gene_stable_ID)]
+res$gene_symbol <- ensembl2gene$Gene[match(rownames(res), ensembl2gene$Ensembl)]
 
 # Remove genes without symbols
 res_with_symbols <- res[!is.na(res$gene_symbol), ]
