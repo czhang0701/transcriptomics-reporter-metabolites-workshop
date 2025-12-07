@@ -4,12 +4,14 @@
 .Rproj.user
 *.Rproj
 
-# Output files
+# Output files (but NOT data files!)
 *.txt
 *.csv
 *.pdf
 !README*.txt
 !README*.csv
+!data/*.txt
+!data/*.csv
 
 # Figure files (can be regenerated)
 figures/
