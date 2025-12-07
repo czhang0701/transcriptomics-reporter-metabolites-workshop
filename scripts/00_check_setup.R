@@ -46,7 +46,6 @@ required_packages <- c(
   # Bioconductor packages
   "DESeq2",
   "piano",
-  "MOFA2",
 
   # CRAN packages
   "tidyverse",
@@ -68,6 +67,7 @@ cat("\nStep 3: Checking optional packages...\n")
 cat("--------------------------------------\n")
 
 optional_packages <- c(
+  "MOFA2",          # Bonus Module 5 only
   "ggrepel",
   "RColorBrewer",
   "viridis",
@@ -99,21 +99,8 @@ test_deseq <- tryCatch({
   FALSE
 })
 
-# Test MOFA2
-test_mofa <- tryCatch({
-  suppressPackageStartupMessages(library(MOFA2))
-  # Just check if main functions are available
-  if (exists("create_mofa") && exists("run_mofa")) {
-    cat("✓ MOFA2 functions available\n")
-    TRUE
-  } else {
-    cat("✗ MOFA2 functions not found\n")
-    FALSE
-  }
-}, error = function(e) {
-  cat("✗ MOFA2 test failed:", e$message, "\n")
-  FALSE
-})
+# MOFA2 is optional (bonus content only)
+# Skipping MOFA2 function test
 
 # Test plotting
 test_plot <- tryCatch({
@@ -193,7 +180,7 @@ cat("========================================\n\n")
 
 all_required <- all(results)
 all_optional <- all(opt_results)
-all_tests <- test_deseq && test_mofa && test_plot
+all_tests <- test_deseq && test_plot  # MOFA2 test removed (optional)
 
 if (all_required && all_tests) {
   cat("✓✓✓ ALL REQUIRED PACKAGES INSTALLED AND WORKING! ✓✓✓\n\n")
