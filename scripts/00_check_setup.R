@@ -147,10 +147,11 @@ data_files <- c(
   "Genes_selected.txt"
 )
 
-cat("Looking for data files in current directory...\n")
+cat("Looking for data files in data/ folder...\n")
 files_found <- 0
 for (file in data_files) {
-  if (file.exists(file)) {
+  full_path <- file.path("data", file)
+  if (file.exists(full_path)) {
     cat("✓", file, "\n")
     files_found <- files_found + 1
   } else {

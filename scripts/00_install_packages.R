@@ -8,11 +8,11 @@ cat("Installing Required R Packages\n")
 cat("========================================\n\n")
 
 # Check R version
-r_version <- as.numeric(paste0(R.version$major, ".", R.version$minor))
-if (r_version < 4.0) {
+r_version <- getRversion()
+if (r_version < "4.0.0") {
   stop("This workshop requires R version 4.0 or higher. Please upgrade R.")
 } else {
-  cat("✓ R version", R.version$major, ".", R.version$minor, "detected\n\n")
+  cat("✓ R version", as.character(r_version), "detected\n\n")
 }
 
 ################################################################################
