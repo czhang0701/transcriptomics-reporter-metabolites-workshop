@@ -28,8 +28,8 @@ check_package <- function(pkg_name) {
 ################################################################################
 
 cat("Step 1: Checking R version...\n")
-r_version <- as.numeric(paste0(R.version$major, ".", R.version$minor))
-if (r_version >= 4.0) {
+r_version <- getRversion()
+if (r_version >= "4.0.0") {
   cat("✓ R version", R.version.string, "\n\n")
 } else {
   cat("✗ R version too old. Please upgrade to R >= 4.0\n\n")
