@@ -321,40 +321,30 @@ rownames(heatmap_data) <- substr(rownames(heatmap_data), 1, 50)  # Truncate long
 
 # Create heatmap
 library(pheatmap)
+
+# Save heatmap to PDF
+pdf("figures/Module2_pathway_heatmap.pdf", width = 10, height = 12)
 pathway_heatmap <- pheatmap(
   as.matrix(heatmap_data),
   cluster_cols = FALSE,
   cluster_rows = TRUE,
   color = colorRampPalette(c("white", "orange", "red"))(50),
   main = "Top 20 Enriched Pathways (GSEA)",
-  fontsize_row = 8,
-  fontsize_col = 10,
+  fontsize_row = 10,
+  fontsize_col = 12,
   angle_col = 0,
-  cellwidth = 40,
-  cellheight = 12,
+  cellwidth = 80,
+  cellheight = 20,
   border_color = "gray90",
-  na_col = "white"
-)
-
-# Save heatmap
-pdf("figures/Module2_pathway_heatmap.pdf", width = 8, height = 10)
-pheatmap(
-  as.matrix(heatmap_data),
-  cluster_cols = FALSE,
-  cluster_rows = TRUE,
-  color = colorRampPalette(c("white", "orange", "red"))(50),
-  main = "Top 20 Enriched Pathways (GSEA)",
-  fontsize_row = 8,
-  fontsize_col = 10,
-  angle_col = 0,
-  cellwidth = 40,
-  cellheight = 12,
-  border_color = "gray90",
-  na_col = "white"
+  na_col = "white",
+  legend = TRUE
 )
 dev.off()
 
 cat("Pathway heatmap saved to figures/Module2_pathway_heatmap.pdf\n")
+
+# Also display in R (optional)
+print(pathway_heatmap)
 
 ## Step 9: Save Results ----
 cat("\n--- Step 9: Saving Results ---\n")
