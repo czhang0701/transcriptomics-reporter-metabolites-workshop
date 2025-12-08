@@ -60,6 +60,21 @@ The following files in this folder contain **incorrect information** about the w
 - Successfully completed
 - No longer needed
 
+### **CLEANUP_COMPLETE.md** (Added Dec 2025)
+- Internal documentation of past cleanup operations
+- Task completed, archived for reference
+- No longer needed for workshop delivery
+
+### **REPOSITORY_STRUCTURE.md** (Added Dec 2025)
+- Outdated structure documentation (references wrong module numbers)
+- Superseded by current README.md
+- Module numbering changed: Reporter Metabolites moved to Module 3
+
+### **TODO_DOCUMENTATION.md** (Added Dec 2025)
+- Internal task tracking for module reorganization
+- Tasks completed (Main.R, README.md updated)
+- No longer needed
+
 ---
 
 ## ✅ CURRENT Files to Use
@@ -89,18 +104,18 @@ However, **DO NOT use them for the actual workshop!**
 
 ## 🎯 Correct Workshop Format
 
-**3-Hour Workshop Timeline**:
+**3-Hour Workshop Timeline** (CURRENT):
 ```
 0:00-0:30 (30m)  Installation - DURING workshop (Windows & Mac)
-0:30-0:50 (20m)  Module 1: Differential Expression
-0:50-1:05 (15m)  Module 2: GSEA
+0:30-0:50 (20m)  Module 1: Differential Expression (DESeq2)
+0:50-1:05 (15m)  Module 2: GSEA (PIANO)
 1:05-1:15 (10m)  BREAK
-1:15-1:30 (15m)  Module 3: Co-expression Networks
-1:30-2:30 (60m)  Module 4: Reporter Metabolites ⭐ MAIN GOAL
-2:30-2:50 (20m)  Discussion & Interpretation
-2:50-3:00 (10m)  Wrap-up & Next Steps
+1:15-2:15 (60m)  Module 3: Reporter Metabolites ⭐ MAIN GOAL
+2:15-2:45 (30m)  Module 4: Advanced Co-expression Networks + Modules
+2:45-2:55 (10m)  Discussion & Interpretation
+2:55-3:00 (5m)   Wrap-up & Next Steps
 
-BONUS: MOFA2 (Optional - for fast students or after workshop)
+BONUS: Module 5 - MOFA2 (Optional - for fast students or after workshop)
 ```
 
 **Key Points**:
