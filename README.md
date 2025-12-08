@@ -26,39 +26,7 @@ Learn to analyze RNA-seq data and identify key metabolic reprogramming events th
 - ✅ **Identify reporter metabolites** ⭐ MAIN GOAL
 - ✅ **Interpret metabolic reprogramming** ⭐
 - ✅ Build advanced co-expression networks with module detection
-
-### Bonus (Fast Learners or After Workshop):
-- 📚 MOFA2 multi-omics integration (optional)
-- 📚 Advanced tutorials with more details
-- 📚 Practice dataset for additional learning
-
----
-
-## ⏰ Workshop Timeline
-
-```
-┌─────────────────────────────────────────────────┐
-│ 3-HOUR WORKSHOP                                  │
-├─────────────────────────────────────────────────┤
-│ 0:00-0:30 (30m) Installation (Windows & Mac)    │
-│ 0:30-0:50 (20m) Module 1: Differential Expression│
-│ 0:50-1:05 (15m) Module 2: Pathway Enrichment    │
-│ ─────────────────────────────────────────────── │
-│ 1:05-1:15 (10m) ☕ BREAK                        │
-│ ─────────────────────────────────────────────── │
-│ 1:15-2:15 (60m) ⭐ Module 3: Reporter Metabolites│
-│ 2:15-2:45 (30m) Module 4: Advanced Co-expression│
-│ 2:45-2:55 (10m) Discussion & Interpretation     │
-│ ─────────────────────────────────────────────── │
-│ 2:55-3:00 (5m)  Wrap-up & Next Steps           │
-└─────────────────────────────────────────────────┘
-
-BONUS (Optional - during workshop if fast, or after):
-├─ MOFA2 tutorials (self-paced)
-├─ Advanced topics
-└─ Apply to own data
-```
-
+- 
 ---
 
 ## 🚀 Getting Started
@@ -82,7 +50,7 @@ BONUS (Optional - during workshop if fast, or after):
 ## 📁 What's Included
 
 ### **Main Workshop Guide**
-- `WORKSHOP_GUIDE_COMPLETE.md` - **START HERE!** (Complete 3-hour workshop)
+- `WORKSHOP_GUIDE_COMPLETE.md` - **START HERE!** (Complete workshop)
 
 ### **Data**
 - `data/` - TCGA RNA-seq dataset (50 samples, 20,000 genes)
@@ -93,7 +61,6 @@ BONUS (Optional - during workshop if fast, or after):
 - `tutorials/Module2_GSEA.md` - Detailed GSEA guide
 - `tutorials/Module3_ReporterMetabolites.md` - Detailed reporter metabolite guide ⭐
 - `tutorials/Module4_Coexpression.md` - Advanced network analysis guide
-- `tutorials/Module5_MOFA2_Introduction.md` - MOFA2 bonus (optional)
 
 ### **Scripts**
 - `scripts/00_install_packages.R` - Auto-install script
@@ -130,15 +97,13 @@ BONUS (Optional - during workshop if fast, or after):
 
 ### **Core Modules** (Required - Everyone Does These)
 
-| Time | Module | Focus | Duration |
-|------|--------|-------|----------|
-| 0:00 | Setup | Install R/RStudio/Packages | 30 min |
-| 0:30 | **1** | Differential Expression (DESeq2) | 20 min |
-| 0:50 | **2** | Gene Set Enrichment (PIANO) | 15 min |
-| 1:15 | **3** | ⭐ Reporter Metabolites (Patil & Nielsen 2005) | 60 min |
-| 2:15 | **4** | Advanced Co-expression Networks + Module Detection | 30 min |
-
-**Total**: 2 hours 20 minutes + 20 min breaks + 20 min discussion = **3 hours**
+| Module | Focus | Duration |
+|--------|-------|----------|
+| Setup | Install R/RStudio/Packages |
+| **1** | Differential Expression (DESeq2) |
+| **2** | Gene Set Enrichment (PIANO) |
+| **3** | ⭐ Reporter Metabolites (Patil & Nielsen 2005) |
+| **4** | Advanced Co-expression Networks + Module Detection |
 
 ---
 
