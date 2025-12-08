@@ -1,54 +1,28 @@
 # Instructor Guide
-## Integrative Multi-Omics Analysis Workshop
+## Transcriptomics to Reporter Metabolites Workshop
 
-This guide is for instructors delivering the workshop.
+This guide is for instructors delivering the 3-hour workshop.
 
 ---
 
 ## 📅 Workshop Schedule
 
-### Two-Day Format (Recommended)
+### 3-Hour Workshop (Current Format)
 
-#### Day 1: RNA-seq Analysis (3 hours + breaks)
+**Main Focus**: Reporter Metabolite Analysis
+
 | Time | Module | Duration | Type |
 |------|--------|----------|------|
-| 9:00-9:30 | Welcome & Setup | 30 min | Lecture |
-| 9:30-10:15 | Module 1: Differential Expression | 45 min | Hands-on |
-| 10:15-10:30 | **Break** | 15 min | - |
-| 10:30-11:15 | Module 2: GSEA | 45 min | Hands-on |
-| 11:15-12:00 | Module 3: Co-expression | 45 min | Hands-on |
-| 12:00-13:00 | **Lunch** | 60 min | - |
-| 13:00-13:30 | Module 4: Reporter Metabolites | 30 min | Demo/Lecture |
+| 0:00-0:30 | Installation & Setup | 30 min | Hands-on + Support |
+| 0:30-0:50 | Module 1: Differential Expression (DESeq2) | 20 min | Hands-on |
+| 0:50-1:05 | Module 2: Gene Set Enrichment (PIANO) | 15 min | Hands-on |
+| 1:05-1:15 | **Break** | 10 min | - |
+| 1:15-2:15 | ⭐ Module 3: Reporter Metabolites | 60 min | Hands-on (MAIN) |
+| 2:15-2:45 | Module 4: Advanced Co-expression Networks | 30 min | Hands-on |
+| 2:45-2:55 | Discussion & Interpretation | 10 min | Discussion |
+| 2:55-3:00 | Wrap-up & Next Steps | 5 min | Lecture |
 
-#### Day 2: MOFA2 Integration (3 hours + breaks)
-| Time | Module | Duration | Type |
-|------|--------|----------|------|
-| 9:00-9:30 | Module 5: MOFA2 Introduction | 30 min | Lecture |
-| 9:30-10:15 | Module 6: Data Preparation | 45 min | Hands-on |
-| 10:15-10:30 | **Break** | 15 min | - |
-| 10:30-11:15 | Module 7: Model Training | 45 min | Hands-on |
-| 11:15-12:00 | Module 8: Interpretation | 45 min | Hands-on |
-| 12:00-12:30 | Wrap-up & Q&A | 30 min | Discussion |
-
----
-
-### One-Day Intensive Format (6 hours)
-
-| Time | Module | Duration |
-|------|--------|----------|
-| 9:00-9:15 | Welcome & Setup | 15 min |
-| 9:15-10:00 | Module 1: DESeq2 | 45 min |
-| 10:00-10:30 | Module 2: GSEA (abbreviated) | 30 min |
-| 10:30-10:45 | **Break** | 15 min |
-| 10:45-11:15 | Module 3: Co-expression | 30 min |
-| 11:15-11:45 | Module 5: MOFA2 Intro | 30 min |
-| 11:45-12:00 | **Break** | 15 min |
-| 12:00-13:00 | **Lunch** | 60 min |
-| 13:00-13:45 | Module 6: MOFA2 Data Prep | 45 min |
-| 13:45-14:30 | Module 7: MOFA2 Training | 45 min |
-| 14:30-14:45 | **Break** | 15 min |
-| 14:45-15:30 | Module 8: MOFA2 Analysis | 45 min |
-| 15:30-16:00 | Wrap-up & Discussion | 30 min |
+**BONUS**: Module 5 (MOFA2) available for self-study or fast learners
 
 ---
 
@@ -58,22 +32,34 @@ This guide is for instructors delivering the workshop.
 
 Participants should be able to:
 
-**Module 1**:
+**Module 1: Differential Expression (DESeq2)**:
 - ✅ Load count data and create DESeq2 object
 - ✅ Interpret log2FoldChange and padj values
 - ✅ Generate volcano plots
+- ✅ Identify differentially expressed genes
 
-**Module 2**:
+**Module 2: Gene Set Enrichment (PIANO)**:
 - ✅ Map Ensembl IDs to gene symbols
 - ✅ Run PIANO enrichment analysis
 - ✅ Interpret pathway results
+- ✅ Identify enriched biological processes
 
-**Module 3**:
-- ✅ Calculate correlation matrices
+**Module 3: Reporter Metabolites ⭐ (MAIN)**:
+- ✅ Understand reporter metabolite algorithm
+- ✅ Load and parse metabolic model (SBML)
+- ✅ Calculate metabolite-level Z-scores
+- ✅ Perform background correction
+- ✅ Identify key reporter metabolites
+- ✅ Interpret metabolic reprogramming
+
+**Module 4: Advanced Co-expression Networks**:
+- ✅ Calculate gene co-expression correlations
 - ✅ Apply FDR correction
+- ✅ Detect network modules (Louvain algorithm)
+- ✅ Perform functional enrichment on modules
 - ✅ Export networks for Cytoscape
 
-**Module 5-8**:
+**BONUS - Module 5: MOFA2** (Optional):
 - ✅ Prepare multi-omics data for MOFA2
 - ✅ Train and evaluate MOFA2 models
 - ✅ Interpret variance decomposition

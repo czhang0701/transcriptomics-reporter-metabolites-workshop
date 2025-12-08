@@ -13,16 +13,16 @@
 
 ```
 0:00-0:30 (30m) Installation & Setup (Windows & Mac)
-0:30-0:50 (20m) Module 1: Differential Expression
-0:50-1:05 (15m) Module 2: Gene Set Enrichment
+0:30-0:50 (20m) Module 1: Differential Expression (DESeq2)
+0:50-1:05 (15m) Module 2: Gene Set Enrichment (PIANO)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 1:05-1:15 (10m) BREAK
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1:15-1:30 (15m) Module 3: Co-expression Networks
-1:30-2:30 (60m) ⭐ Module 4: Reporter Metabolites (MAIN)
-2:30-2:50 (20m) Interpretation & Discussion
+1:15-2:15 (60m) ⭐ Module 3: Reporter Metabolites (MAIN)
+2:15-2:45 (30m) Module 4: Advanced Co-expression Networks + Modules
+2:45-2:55 (10m) Interpretation & Discussion
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2:50-3:00 (10m) Wrap-up & Next Steps
+2:55-3:00 (5m)  Wrap-up & Next Steps
 ```
 
 **BONUS** (Optional - for fast students or after workshop):
@@ -36,10 +36,10 @@
 
 **Guaranteed (Everyone)**:
 - ✅ Install R, RStudio, and packages
-- ✅ Run differential expression analysis
-- ✅ Perform pathway enrichment
-- ✅ Build co-expression networks
-- ✅ **Identify reporter metabolites** ⭐
+- ✅ Run differential expression analysis (DESeq2)
+- ✅ Perform pathway enrichment (PIANO)
+- ✅ **Identify reporter metabolites** ⭐ MAIN FOCUS
+- ✅ Build advanced co-expression network modules
 
 **Bonus (Fast Learners/After Workshop)**:
 - Multi-omics integration with MOFA2
@@ -433,7 +433,7 @@ Stretch, coffee, ask questions!
 
 ---
 
-## Module 3: Co-expression Networks (15 minutes)
+## Module 3: Reporter Metabolites (60 minutes) ⭐ MAIN FOCUS
 
 ### **Load and Prepare Data**
 
@@ -533,9 +533,9 @@ cat("✓ Network complete! Significant correlations:",
 
 ---
 
-## ⭐ Module 4: Reporter Metabolites (60 minutes)
+## Module 4: Advanced Co-expression Network Analysis (30 minutes)
 
-### **MAIN FOCUS - This is what we came for!**
+### **Module Detection and Functional Enrichment**
 
 ---
 
