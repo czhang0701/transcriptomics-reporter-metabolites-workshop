@@ -159,7 +159,8 @@ parseSBMLModel <- function(sbml_file) {
 
   # Build stoichiometric matrix S (metabolites x reactions)
   cat("Step 4: Building stoichiometric matrix...\n")
-  S <- matrix(0, nrow = n_species, ncol = n_reactions)
+  n_metabolites <- length(mets)
+  S <- matrix(0, nrow = n_metabolites, ncol = n_reactions)
   rownames(S) <- mets
   colnames(S) <- rxns
 
