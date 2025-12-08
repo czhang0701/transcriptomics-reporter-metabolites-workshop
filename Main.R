@@ -571,18 +571,33 @@ if (file.exists(model_file)) {
 cat("\n--- Step 3: Preparing Gene Statistics ---\n")
 
 # Get gene symbols and statistics from DESeq2 results
-genes_for_reporter <- res$gene_symbol[!is.na(res$gene_symbol)]
-pvals_for_reporter <- res$pvalue[!is.na(res$gene_symbol)]
-fc_for_reporter <- res$log2FoldChange[!is.na(res$gene_symbol)]
+gene_symbols <- res$gene_symbol[!is.na(res$gene_symbol)]
+pvals <- res$pvalue[!is.na(res$gene_symbol)]
+fc <- res$log2FoldChange[!is.na(res$gene_symbol)]
 
 # Remove any remaining NAs
-valid <- !is.na(pvals_for_reporter) & !is.na(fc_for_reporter)
-genes_for_reporter <- genes_for_reporter[valid]
-pvals_for_reporter <- pvals_for_reporter[valid]
-fc_for_reporter <- fc_for_reporter[valid]
+valid <- !is.na(pvals) & !is.na(fc)
+gene_symbols <- gene_symbols[valid]
+pvals <- pvals[valid]
+fc <- fc[valid]
 
-cat("Genes for reporter analysis:", length(genes_for_reporter), "\n")
-cat("Genes in model:", sum(genes_for_reporter %in% model$genes), "\n")
+cat("Total genes from DESeq2:", length(gene_symbols), "\n")
+
+# Convert gene symbols to Ensembl IDs (model uses Ensembl IDs)
+cat("Converting gene symbols to Ensembl IDs...\n")
+
+# Map symbols to Ensembl IDs
+ensembl_indices <- match(gene_symbols, ensembl2gene$Gene)
+genes_for_reporter <- ensembl2gene$Ensembl[ensembl_indices]
+
+# Keep only genes that successfully mapped
+mapped <- !is.na(genes_for_reporter)
+genes_for_reporter <- genes_for_reporter[mapped]
+pvals_for_reporter <- pvals[mapped]
+fc_for_reporter <- fc[mapped]
+
+cat("Genes successfully mapped to Ensembl:", length(genes_for_reporter), "\n")
+cat("Genes found in metabolic model:", sum(genes_for_reporter %in% model$genes), "\n")
 
 ## Step 4: Run Reporter Metabolite Analysis ----
 cat("\n--- Step 4: Running Reporter Metabolite Analysis ---\n")
