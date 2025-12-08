@@ -46,6 +46,7 @@ required_packages <- c(
   # Bioconductor packages
   "DESeq2",
   "piano",
+  "rsbml",
 
   # CRAN packages
   "tidyverse",

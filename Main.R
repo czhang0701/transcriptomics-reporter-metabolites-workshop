@@ -540,34 +540,27 @@ This helps identify KEY metabolic hubs in your biological system.
 ## Step 2: Load Metabolic Model ----
 cat("\n--- Step 2: Loading Genome-Scale Metabolic Model ---\n")
 
-# Load metabolic model (SBML format)
-# This contains metabolite-gene associations
-library(XML)
+# Load metabolic model (SBML format) to extract metabolite-gene associations
+# This is the TRUE reporter metabolite approach!
+cat("Loading SBML model (this may take 1-2 minutes)...\n")
 
-model <- xmlParse("data/Reference_model.xml")
-cat("Metabolic model loaded\n")
+# Check if rsbml is installed
+if (!requireNamespace("rsbml", quietly = TRUE)) {
+  cat("WARNING: rsbml package not installed.\n")
+  cat("Installing rsbml (this is needed for true reporter metabolite analysis)...\n")
+  BiocManager::install("rsbml", update = FALSE, ask = FALSE)
+}
 
-# In practice, we'll use pre-processed metabolite-gene associations
-# For this workshop, we'll use example gene sets
+library(rsbml)
 
-## Step 3: Create Metabolite-Gene Associations ----
-cat("\n--- Step 3: Creating Metabolite-Gene Gene Sets ---\n")
+# Load the genome-scale metabolic model
+# This extracts metabolite-gene associations from the SBML file
+gsc_metabolites <- loadGSC("data/Reference_model.xml")
 
-# For demonstration, we'll use GO Biological Process as proxy
-# In real analysis, you would extract from metabolic model
-
-# We already have gene sets from Module 2
-# Let's focus on metabolic pathways
-
-# Filter for metabolic gene sets
-metabolic_gene_sets <- gsc$gsc[grepl("METABOL|GLYCOLYSIS|TCA|FATTY|LIPID|OXIDATIVE",
-                                     names(gsc$gsc))]
-
-cat("Number of metabolic gene sets:", length(metabolic_gene_sets), "\n")
-
-# Create new gene set collection
-gsc_metabolites <- list(gsc = metabolic_gene_sets)
-class(gsc_metabolites) <- "GSC"
+cat("Metabolic model loaded successfully!\n")
+cat("Number of metabolites (gene sets):", length(gsc_metabolites$gsc), "\n")
+cat("\nEach 'gene set' represents genes associated with a specific metabolite.\n")
+cat("Example: Lactate is associated with LDHA, LDHB, SLC16A family, etc.\n")
 
 ## Step 4: Prepare Gene Statistics ----
 cat("\n--- Step 4: Preparing Gene Statistics ---\n")
@@ -685,28 +678,44 @@ cat("Reporter metabolite results saved to data/Reporter_Metabolites_output.txt\n
 ## Step 10: Visualization ----
 cat("\n--- Step 10: Visualizing Reporter Metabolites ---\n")
 
-# Create bar plot of top reporters
-top_reporters <- head(reporter_summary, 15)
-top_reporters$pathway <- rownames(top_reporters)
+# Create heatmap showing up- and down-regulated reporter metabolites
+top_reporters <- head(reporter_summary, 20)
 
-# Plot p-values (as -log10)
-reporter_plot <- ggplot(top_reporters, aes(x = reorder(pathway, -`p adj (dist.dir.up)`),
-                                           y = -log10(`p adj (dist.dir.up)`))) +
-  geom_bar(stat = "identity", fill = "steelblue") +
-  coord_flip() +
-  theme_minimal() +
-  labs(
-    title = "Top 15 Reporter Metabolites",
-    x = "Metabolic Process",
-    y = "-Log10 Adjusted P-value"
-  ) +
-  theme(axis.text.y = element_text(size = 8))
+# Create a matrix for heatmap
+heatmap_data <- data.frame(
+  Up = -log10(top_reporters$`p adj (dist.dir.up)`),
+  Down = -log10(top_reporters$`p adj (dist.dir.dn)`)
+)
 
-print(reporter_plot)
+# Get metabolite names and clean them up
+if ("Name" %in% colnames(top_reporters)) {
+  metabolite_names <- top_reporters$Name
+} else {
+  metabolite_names <- rownames(top_reporters)
+}
 
-# Save plot
-ggsave("figures/Module4_reporter_metabolites.pdf", reporter_plot, width = 10, height = 8)
-cat("Reporter metabolite plot saved to figures/Module4_reporter_metabolites.pdf\n")
+# Clean up metabolite names (remove prefixes and replace underscores)
+metabolite_names <- gsub("^HMR_", "", metabolite_names)
+metabolite_names <- gsub("^M_", "", metabolite_names)
+metabolite_names <- gsub("_[a-z]$", "", metabolite_names)  # Remove compartment suffixes like _c, _m
+metabolite_names <- gsub("_", " ", metabolite_names)
+rownames(heatmap_data) <- metabolite_names
+
+# Save heatmap to PDF
+pdf("figures/Module4_reporter_metabolites.pdf", width = 10, height = 12)
+reporter_heatmap <- pheatmap(
+  as.matrix(heatmap_data),
+  cluster_cols = FALSE,
+  cluster_rows = TRUE,
+  color = colorRampPalette(c("white", "orange", "red"))(50),
+  main = "Top 20 Reporter Metabolites",
+  fontsize_row = 10,
+  fontsize_col = 12,
+  display_numbers = FALSE
+)
+dev.off()
+
+cat("Reporter metabolite heatmap saved to figures/Module4_reporter_metabolites.pdf\n")
 
 cat("\n=== MODULE 4 COMPLETE ===\n")
 

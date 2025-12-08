@@ -37,6 +37,7 @@ cat("This may take several minutes...\n\n")
 bioc_packages <- c(
   "DESeq2",           # Differential expression analysis
   "piano",            # Gene set enrichment analysis
+  "rsbml",            # Read SBML files for reporter metabolites
   "MOFA2"             # Multi-omics factor analysis
 )
 
