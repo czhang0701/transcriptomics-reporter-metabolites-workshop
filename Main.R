@@ -194,6 +194,23 @@ write.table(
 
 cat("Results saved to data/DESeq_output.txt\n")
 
+## REFLECTION QUESTIONS ----
+cat("\n--- Reflection Questions for Module 1 ---\n")
+cat("
+Think about these questions (discuss with your neighbor):
+
+Q1: Why do we use negative binomial distribution instead of normal distribution?
+Q2: What does a positive log2FoldChange mean in Late vs Early comparison?
+Q3: Why use adjusted p-values (FDR) instead of raw p-values?
+Q4: Look at your volcano plot - why do some genes have high fold-change
+    but are NOT significant? (Hint: think about variance and sample size)
+
+BONUS: If you found", sig_genes, "DEGs, is that a lot or a little?
+       How would you decide?
+
+See REFLECTION_QUESTIONS.md for detailed discussion and hints!
+\n")
+
 cat("\n=== MODULE 1 COMPLETE ===\n")
 
 
@@ -369,6 +386,28 @@ write.table(
 )
 
 cat("GSEA results saved to data/Piano_output.txt\n")
+
+## REFLECTION QUESTIONS ----
+cat("\n--- Reflection Questions for Module 2 ---\n")
+cat("
+Think about these questions (discuss with your neighbor):
+
+Q1: Why do we analyze pathways instead of just individual genes?
+    (Hint: Think about signal-to-noise ratio and biological interpretability)
+
+Q2: What does it mean when a pathway is enriched in 'up-regulated' genes?
+
+Q3: Look at your results - did you find 'OXIDATIVE_PHOSPHORYLATION' in
+    down-regulated genes? What does this tell you about cancer metabolism?
+    (Hint: Warburg effect)
+
+Q4: Why might different pathway databases (GO vs KEGG) give different results?
+
+BONUS: Why might some highly significant individual genes NOT appear
+       in any enriched pathway?
+
+See REFLECTION_QUESTIONS.md for detailed discussion and hints!
+\n")
 
 cat("\n=== MODULE 2 COMPLETE ===\n")
 
@@ -689,6 +728,43 @@ if (length(reporter_results) == 3) {
   cat("Heatmap saved to figures/Module4_reporter_metabolites_heatmap.pdf\n")
 }
 
+## REFLECTION QUESTIONS ----
+cat("\n--- Reflection Questions for Module 3 ---\n")
+cat("
+Think about these questions (discuss with your neighbor):
+
+Q1: What is the difference between Reporter Metabolites and GSEA?
+    (Hint: Gene sets → Pathways vs Gene sets → Metabolites)
+
+Q2: Why do we aggregate Z-scores instead of just counting significant genes?
+
+Q3: ⭐ IMPORTANT: Why might a metabolite show up as significant in BOTH
+    up-regulated AND down-regulated analyses?
+
+    Example: Lactate
+    - Lactate PRODUCTION genes (LDHA) might be upregulated
+    - Lactate IMPORT genes (MCT1) might be downregulated
+    - Result: Lactate appears in BOTH analyses!
+
+    This happens because:
+    • Metabolic flux can reverse (forward/reverse reactions)
+    • Same metabolite in different compartments (cytosol vs mitochondria)
+    • Competing pathways (multiple ways to produce/consume)
+    • Regulatory complexity (anabolic vs catabolic genes)
+    • Feedback loops (metabolite accumulation triggers responses)
+
+Q4: If a metabolite has a very high Z-score but only 3 neighboring genes,
+    should you trust it? Why or why not?
+
+Q5: How would you validate a reporter metabolite finding experimentally?
+    (Hint: Metabolomics, isotope tracing, enzyme activity assays)
+
+Q6: Compare your top reporter metabolites with enriched pathways from Module 2.
+    Do they match? What does this tell you?
+
+See REFLECTION_QUESTIONS.md for detailed discussion and more examples!
+\n")
+
 cat("\n=== MODULE 3 COMPLETE ===\n")
 
 
@@ -962,6 +1038,42 @@ NEXT STEPS:
 - Investigate hub genes in each module
 - Consider network-based drug target identification
 ")
+
+## REFLECTION QUESTIONS ----
+cat("\n--- Reflection Questions for Module 4 ---\n")
+cat("
+Think about these questions (discuss with your neighbor):
+
+Q1: What does a positive correlation between two genes tell you biologically?
+    (Hint: Co-regulation, same pathway, protein complex)
+
+Q2: Why do we filter to the top 10% of correlations instead of keeping all
+    significant ones? (Hint: Network density and module detection)
+
+Q3: What is a 'module' and why is it biologically meaningful?
+
+Q4: What does 'modularity' measure? Is", round(modules_pos$modularity, 3), "a good score?
+    (Hint: Values > 0.3 suggest good module structure)
+
+Q5: Why might we analyze positive and negative correlations separately?
+    (Positive = co-activation; Negative = antagonistic regulation)
+
+Q6: You found a module with 100 genes but no significant pathway enrichment.
+    What could this mean?
+    • Novel functional module not yet annotated?
+    • Technical artifact (batch effect)?
+    • Non-functional criteria (chromosomal location)?
+
+Q7: Why might hub genes (highly connected) be good drug targets?
+
+Q8: ⭐ INTEGRATION: How would you integrate network modules with reporter
+    metabolites from Module 3?
+    1. Check if module genes are enriched for specific metabolite associations
+    2. See if hub genes encode metabolic enzymes
+    3. Compare module enrichment with reporter metabolite pathways
+
+See REFLECTION_QUESTIONS.md for detailed discussion!
+\n")
 
 cat("\n=== MODULE 4 COMPLETE ===\n")
 
