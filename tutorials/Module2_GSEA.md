@@ -438,7 +438,7 @@ if (exists("top_up") && exists("top_down")) {
 1. **Observation**: 8/10 glycolysis genes up-regulated in Late stage
 2. **Mechanism**: Late stage tumors have enhanced glucose metabolism
 3. **Context**: Warburg effect - cancer cells prefer glycolysis
-4. **Consequence**: Produces lactate (see Module 4 - Reporter Metabolites!)
+4. **Consequence**: Produces lactate (see Module 3 - Reporter Metabolites!)
 5. **Clinical**: Could target glycolysis therapeutically
 
 ---
@@ -633,7 +633,7 @@ Run same analysis on practice data:
 - Pathways suggest which genes to focus on
 - Network analysis can reveal pathway structure
 
-**To Module 4** (Reporter Metabolites):
+**To Module 3 (Reporter Metabolites)):
 - Enriched metabolic pathways point to key metabolites
 - Glycolysis enrichment → Expect lactate/pyruvate as reporters
 - Provides biological context for metabolic interpretation
@@ -661,7 +661,7 @@ Run same analysis on practice data:
 
 ## ⏭️ Next Module
 
-Continue to **Module 3: Co-expression Network Analysis** to explore gene-gene relationships and identify metabolic gene modules.
+Continue to **Module 4: Advanced Co-expression Network Analysis** to explore gene-gene relationships and identify metabolic gene modules.
 
 **Solutions**: Available in `solutions/Module2_solutions.R`
 

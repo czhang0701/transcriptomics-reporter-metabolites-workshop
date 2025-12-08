@@ -1,6 +1,6 @@
-# Module 3: Co-expression Network Analysis
+# Module 4: Advanced Co-expression Network Analysis
 
-**Duration**: 45 minutes
+**Duration**: 30 minutes
 **Difficulty**: Intermediate
 
 ---
@@ -511,7 +511,7 @@ Genes: LDHA, LDHB, PKM, HK2, SLC2A1
 2. **Co-expression**: r > 0.8 for all pairs
 3. **Biological meaning**: Coordinated glycolytic program
 4. **Clinical relevance**: Warburg effect in cancer
-5. **Follow-up**: Check if lactate is reporter metabolite (Module 4!)
+5. **Follow-up**: Check if lactate is reporter metabolite (Module 3!)
 
 ---
 
@@ -700,7 +700,7 @@ More sophisticated approach:
 - Co-expression confirms pathway coherence
 - Example: Glycolysis genes co-expressed → validates enrichment
 
-**To Module 4** (Reporter Metabolites):
+**To Module 3** (Reporter Metabolites):
 - Co-expressed metabolic genes → shared metabolites
 - Network modules → metabolic subsystems
 - Hub genes → key metabolic enzymes
@@ -756,14 +756,14 @@ More sophisticated approach:
 
 ## ⏭️ Next Module
 
-Continue to **Module 4: Reporter Metabolite Analysis** ⭐
+**Note**: In the 3-hour workshop, Module 3 (Reporter Metabolites) comes BEFORE Module 4 (this module).
 
-**This is the main focus!** We'll now use:
+This tutorial shows the advanced co-expression analysis that builds upon:
 - Differential expression (Module 1)
 - Enriched pathways (Module 2)
-- Co-expression modules (Module 3)
+- Reporter metabolites (Module 3) ⭐
 
-To identify **key metabolic reprogramming events** through reporter metabolites!
+Together, these modules provide a **complete picture of metabolic reprogramming**!
 
 **Solutions**: Available in `solutions/Module3_solutions.R`
 

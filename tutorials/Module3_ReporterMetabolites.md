@@ -1,4 +1,4 @@
-# Module 4: Reporter Metabolite Analysis
+# Module 3: Reporter Metabolite Analysis ⭐
 
 **Duration**: 60 minutes
 **Difficulty**: Intermediate-Advanced
