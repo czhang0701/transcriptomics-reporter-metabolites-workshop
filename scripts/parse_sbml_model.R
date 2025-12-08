@@ -40,7 +40,43 @@ parseSBMLModel <- function(sbml_file) {
     metNames[i] <- xmlGetAttr(species, "name", default = mets[i])
   }
 
-  cat("  Found", n_species, "metabolites\n")
+  # Separate metabolites (M_xxx) from enzymes (E_xxx)
+  is_enzyme <- grepl("^E_", mets)
+  enzyme_ids <- mets[is_enzyme]
+  enzyme_names <- metNames[is_enzyme]
+
+  # Keep only metabolites
+  mets <- mets[!is_enzyme]
+  metNames <- metNames[!is_enzyme]
+
+  cat("  Found", length(mets), "metabolites\n")
+  cat("  Found", length(enzyme_ids), "enzymes\n")
+
+  # Create enzyme-to-gene mapping
+  # Extract Ensembl IDs or gene symbols from enzyme names
+  genes_from_enzymes <- character(length(enzyme_ids))
+  for (i in 1:length(enzyme_ids)) {
+    # Enzyme name is either Ensembl ID or gene symbol
+    gene_id <- enzyme_names[i]
+
+    # Try to extract Ensembl ID from annotation or notes
+    # For now, use the name directly
+    if (grepl("^ENSG", gene_id)) {
+      genes_from_enzymes[i] <- gene_id
+    } else {
+      # It might be a gene symbol in the notes
+      genes_from_enzymes[i] <- gene_id
+    }
+  }
+
+  # Create enzyme to gene mapping
+  enzyme_to_gene <- data.frame(
+    enzyme_id = enzyme_ids,
+    gene_id = genes_from_enzymes,
+    stringsAsFactors = FALSE
+  )
+
+  cat("  Enzyme-gene mapping created\n")
 
   # Extract reactions
   cat("Step 2: Extracting reactions...\n")
@@ -77,32 +113,30 @@ parseSBMLModel <- function(sbml_file) {
       }
     }
 
-    reaction_metabolites[[i]] <- unique(c(reactants, products))
+    # Filter to keep only metabolites (not enzymes)
+    metabolites_only <- c(reactants, products)[grepl("^M_", c(reactants, products))]
+    reaction_metabolites[[i]] <- unique(metabolites_only)
 
-    # Extract gene associations from notes
-    notes <- reaction[["notes"]]
-    genes <- character(0)
+    # Extract gene associations from modifiers (enzymes)
+    modifiers_list <- reaction[["listOfModifiers"]]
+    enzyme_refs <- character(0)
 
-    if (!is.null(notes)) {
-      notes_text <- xmlValue(notes)
-
-      # Look for GENE_ASSOCIATION or GENE ASSOCIATION
-      if (grepl("GENE[_ ]ASSOCIATION", notes_text, ignore.case = TRUE)) {
-        # Extract gene association text
-        gene_pattern <- "GENE[_ ]ASSOCIATION[:\\s]+([^<\n]+)"
-        gene_match <- regexpr(gene_pattern, notes_text, ignore.case = TRUE, perl = TRUE)
-
-        if (gene_match[1] > 0) {
-          gene_text <- regmatches(notes_text, gene_match)
-          gene_text <- sub("GENE[_ ]ASSOCIATION[:\\s]+", "", gene_text, ignore.case = TRUE)
-
-          # Parse gene associations: remove operators, parentheses
-          gene_text <- gsub("\\(|\\)", " ", gene_text)
-          gene_text <- gsub(" and | or ", " ", gene_text, ignore.case = TRUE)
-          genes <- unique(trimws(unlist(strsplit(gene_text, "\\s+"))))
-          genes <- genes[genes != "" & genes != "and" & genes != "or"]
+    if (!is.null(modifiers_list)) {
+      for (j in 1:xmlSize(modifiers_list)) {
+        modifier_ref <- xmlGetAttr(modifiers_list[[j]], "species")
+        # Only keep enzyme references (E_xxx)
+        if (grepl("^E_", modifier_ref)) {
+          enzyme_refs <- c(enzyme_refs, modifier_ref)
         }
       }
+    }
+
+    # Map enzymes to genes
+    genes <- character(0)
+    if (length(enzyme_refs) > 0) {
+      gene_indices <- match(enzyme_refs, enzyme_to_gene$enzyme_id)
+      genes <- enzyme_to_gene$gene_id[gene_indices[!is.na(gene_indices)]]
+      genes <- unique(genes[!is.na(genes)])
     }
 
     reaction_genes[[i]] <- genes
