@@ -312,12 +312,22 @@ heatmap_data <- data.frame(
   Up = -log10(top_pathways$`p adj (dist.dir.up)`),
   Down = -log10(top_pathways$`p adj (dist.dir.dn)`)
 )
-rownames(heatmap_data) <- rownames(top_pathways)
 
-# Clean up pathway names (remove "GOBP_" prefix and make readable)
-rownames(heatmap_data) <- gsub("GOBP_", "", rownames(heatmap_data))
-rownames(heatmap_data) <- gsub("_", " ", rownames(heatmap_data))
-rownames(heatmap_data) <- substr(rownames(heatmap_data), 1, 50)  # Truncate long names
+# Use pathway names from the Name column (not rownames/IDs)
+if ("Name" %in% colnames(top_pathways)) {
+  pathway_names <- top_pathways$Name
+} else {
+  pathway_names <- rownames(top_pathways)
+}
+
+# Clean up pathway names (remove "GO_" or "GOBP_" prefix and make readable)
+pathway_names <- gsub("^GO_", "", pathway_names)
+pathway_names <- gsub("^GOBP_", "", pathway_names)
+pathway_names <- gsub("_", " ", pathway_names)
+pathway_names <- substr(pathway_names, 1, 60)  # Truncate long names
+
+# Set cleaned names as rownames
+rownames(heatmap_data) <- pathway_names
 
 # Create heatmap
 library(pheatmap)
