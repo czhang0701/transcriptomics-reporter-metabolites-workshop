@@ -523,7 +523,11 @@ cat("\n=== MODULE 3 COMPLETE ===\n")
 cat("\n=== MODULE 4: REPORTER METABOLITE ANALYSIS ===\n")
 
 # Load required libraries
-library(piano)
+library(XML)
+
+# Load custom reporter metabolites functions
+source("scripts/parse_sbml_model.R")
+source("scripts/reporter_metabolites.R")
 
 ## Step 1: Understand Reporter Metabolites ----
 cat("\n--- Step 1: What Are Reporter Metabolites? ---\n")
@@ -531,108 +535,119 @@ cat("
 Reporter metabolites are metabolites around which
 transcriptional regulation is significantly enriched.
 
+Algorithm (Patil & Nielsen, 2005):
+1. Convert gene P-values to Z-scores
+2. For each metabolite, aggregate Z-scores of neighboring genes
+3. Correct for background using random sampling
+4. Calculate metabolite-level P-values
+
 They connect:
   Genes → Enzymes → Reactions → Metabolites → Pathways
 
 This helps identify KEY metabolic hubs in your biological system.
 \n")
 
-## Step 2: Load Metabolic Model ----
-cat("\n--- Step 2: Loading Genome-Scale Metabolic Model ---\n")
+## Step 2: Load or Parse Metabolic Model ----
+cat("\n--- Step 2: Loading Metabolic Model ---\n")
 
-# Load metabolic model (SBML format) to extract metabolite-gene associations
-# This is the TRUE reporter metabolite approach!
-cat("Loading SBML model (this may take 1-2 minutes)...\n")
+# Check if pre-parsed model exists
+model_file <- "data/parsed_model.rds"
 
-# Check if rsbml is installed
-if (!requireNamespace("rsbml", quietly = TRUE)) {
-  cat("WARNING: rsbml package not installed.\n")
-  cat("Installing rsbml (this is needed for true reporter metabolite analysis)...\n")
-  BiocManager::install("rsbml", update = FALSE, ask = FALSE)
+if (file.exists(model_file)) {
+  cat("Loading pre-parsed model (fast)...\n")
+  model <- loadModel(model_file)
+} else {
+  cat("Parsing SBML model for the first time...\n")
+  cat("This will take 3-5 minutes but only needs to be done once!\n\n")
+
+  model <- parseSBMLModel("data/Reference_model.xml")
+
+  # Save for future use
+  saveModel(model, model_file)
+  cat("\nModel saved! Next time this will load instantly.\n")
 }
 
-library(rsbml)
+## Step 3: Prepare Gene Statistics ----
+cat("\n--- Step 3: Preparing Gene Statistics ---\n")
 
-# Load the genome-scale metabolic model
-# This extracts metabolite-gene associations from the SBML file
-gsc_metabolites <- loadGSC("data/Reference_model.xml")
+# Get gene symbols and statistics from DESeq2 results
+genes_for_reporter <- res$gene_symbol[!is.na(res$gene_symbol)]
+pvals_for_reporter <- res$pvalue[!is.na(res$gene_symbol)]
+fc_for_reporter <- res$log2FoldChange[!is.na(res$gene_symbol)]
 
-cat("Metabolic model loaded successfully!\n")
-cat("Number of metabolites (gene sets):", length(gsc_metabolites$gsc), "\n")
-cat("\nEach 'gene set' represents genes associated with a specific metabolite.\n")
-cat("Example: Lactate is associated with LDHA, LDHB, SLC16A family, etc.\n")
+# Remove any remaining NAs
+valid <- !is.na(pvals_for_reporter) & !is.na(fc_for_reporter)
+genes_for_reporter <- genes_for_reporter[valid]
+pvals_for_reporter <- pvals_for_reporter[valid]
+fc_for_reporter <- fc_for_reporter[valid]
 
-## Step 4: Prepare Gene Statistics ----
-cat("\n--- Step 4: Preparing Gene Statistics ---\n")
+cat("Genes for reporter analysis:", length(genes_for_reporter), "\n")
+cat("Genes in model:", sum(genes_for_reporter %in% model$genes), "\n")
 
-# Use the same statistics from Module 2
-# (already have pval_vector and fc_vector)
+## Step 4: Run Reporter Metabolite Analysis ----
+cat("\n--- Step 4: Running Reporter Metabolite Analysis ---\n")
+cat("This will take 5-10 minutes for full analysis...\n\n")
 
-cat("Genes for reporter analysis:", length(pval_vector), "\n")
-
-## Step 5: Run Reporter Metabolite Analysis ----
-cat("\n--- Step 5: Running Reporter Analysis (2-3 minutes) ---\n")
-
-# Run GSA with reporter method (same as Module 2, but focused on metabolites)
-reporter_results <- runGSA(
-  geneLevelStats = pval_vector,
-  directions = fc_vector,
-  gsc = gsc_metabolites,
-  geneSetStat = "reporter",      # Reporter genes method
-  signifMethod = "geneSampling",
-  nPerm = 1000,
-  gsSizeLim = c(3, 100),         # Metabolite gene sets are usually smaller
-  adjMethod = "fdr"
+# Run reporter metabolites algorithm
+reporter_results <- reporterMetabolites(
+  model = model,
+  genes = genes_for_reporter,
+  genePValues = pvals_for_reporter,
+  geneFoldChanges = fc_for_reporter,
+  printResults = TRUE  # Print top 20 to console
 )
 
-cat("Reporter metabolite analysis complete!\n")
+cat("\nReporter metabolite analysis complete!\n")
 
-## Step 6: Extract Reporter Metabolites ----
-cat("\n--- Step 6: Identifying Top Reporter Metabolites ---\n")
+## Step 5: Interpret Results ----
+cat("\n--- Step 5: Biological Interpretation ---\n")
 
-# Get results summary
-reporter_summary <- GSAsummaryTable(reporter_results)
+# Extract results for "all genes" test
+reporter_all <- reporter_results[[1]]
 
-# View top reporter metabolites
-cat("\nTop 20 Reporter Metabolites:\n")
-print(head(reporter_summary, 20))
-
-## Step 7: Biological Interpretation ----
-cat("\n--- Step 7: Biological Interpretation ---\n")
+# Show top significant metabolites
+cat("\nTop 10 Significant Reporter Metabolites:\n")
+cat(sprintf("%-20s %-40s %12s %10s\n", "ID", "Name", "P-value", "N Genes"))
+cat(strrep("-", 85), "\n")
+for (i in 1:min(10, length(reporter_all$mets))) {
+  cat(sprintf("%-20s %-40s %.2e %10d\n",
+              substr(reporter_all$mets[i], 1, 20),
+              substr(reporter_all$metNames[i], 1, 40),
+              reporter_all$metPValues[i],
+              reporter_all$metNGenes[i]))
+}
 
 # Look for specific metabolic signatures
 cat("\nKey Metabolic Changes Detected:\n\n")
 
-# Glycolysis
-if (any(grepl("GLYCOLYSIS", rownames(reporter_summary)))) {
-  cat("✓ GLYCOLYSIS pathways detected\n")
-  cat("  → Warburg effect: increased lactate production\n")
-  cat("  → Common in cancer cells\n\n")
+metabolite_names <- tolower(paste(reporter_all$metNames, collapse = " "))
+
+if (grepl("glucose|glycolysis|lactate|pyruvate", metabolite_names)) {
+  cat("✓ GLYCOLYSIS/GLUCOSE metabolism\n")
+  cat("  → Changes in glucose utilization\n")
+  cat("  → Potential Warburg effect\n\n")
 }
 
-# TCA cycle
-if (any(grepl("TCA|CITRIC_ACID", rownames(reporter_summary)))) {
-  cat("✓ TCA CYCLE changes detected\n")
+if (grepl("citrate|succinate|malate|fumarate|tca|krebs", metabolite_names)) {
+  cat("✓ TCA CYCLE metabolites\n")
   cat("  → Altered energy metabolism\n")
-  cat("  → Potential metabolic reprogramming\n\n")
+  cat("  → Mitochondrial reprogramming\n\n")
 }
 
-# Oxidative phosphorylation
-if (any(grepl("OXIDATIVE_PHOSPHORYLATION", rownames(reporter_summary)))) {
-  cat("✓ OXIDATIVE PHOSPHORYLATION changes\n")
-  cat("  → Mitochondrial function altered\n")
-  cat("  → May indicate metabolic shift\n\n")
+if (grepl("fatty|lipid|acyl|palmit", metabolite_names)) {
+  cat("✓ FATTY ACID metabolism\n")
+  cat("  → Lipid metabolism changes\n")
+  cat("  → Energy source shift\n\n")
 }
 
-# Fatty acid metabolism
-if (any(grepl("FATTY_ACID", rownames(reporter_summary)))) {
-  cat("✓ FATTY ACID metabolism changes\n")
-  cat("  → Lipid metabolism reprogramming\n")
-  cat("  → Energy source utilization changes\n\n")
+if (grepl("amino|glutam|leucine|alanine", metabolite_names)) {
+  cat("✓ AMINO ACID metabolism\n")
+  cat("  → Protein/nitrogen metabolism\n")
+  cat("  → Potential nutrient stress response\n\n")
 }
 
-## Step 8: Connect to Earlier Results ----
-cat("\n--- Step 8: Connecting Results Across Modules ---\n")
+## Step 6: Connect to Earlier Results ----
+cat("\n--- Step 6: Connecting Results Across Modules ---\n")
 
 cat("
 INTEGRATION ACROSS MODULES:
@@ -641,13 +656,14 @@ Module 1 (DESeq2):
   → Found", sig_genes, "differentially expressed genes
 
 Module 2 (GSEA):
-  → Identified", nrow(metabolic_pathways), "enriched metabolic pathways
+  → Identified enriched biological pathways
 
 Module 3 (Networks):
   → Found", nrow(significant_network), "significant gene correlations
 
 Module 4 (Reporter Metabolites): ⭐
-  → Identified", nrow(reporter_summary), "metabolite-associated processes
+  → Identified", length(reporter_all$mets), "metabolites with scores
+  → Found", sum(reporter_all$metPValues < 0.05), "significant reporter metabolites (P < 0.05)
   → KEY METABOLIC HUBS identified!
 
 BIOLOGICAL INSIGHT:
@@ -655,67 +671,150 @@ These reporter metabolites represent the KEY NODES in metabolic
 reprogramming. They are the metabolites around which most
 transcriptional changes occur.
 
+Algorithm: For each metabolite, we:
+1. Identified all genes encoding enzymes that produce/consume it
+2. Aggregated their differential expression Z-scores
+3. Corrected for gene set size using random sampling
+4. Calculated metabolite-level significance
+
 NEXT STEPS:
-1. Validate with metabolomics data
-2. Test hypotheses experimentally
+1. Validate with metabolomics data (measure actual metabolite levels)
+2. Target high-scoring metabolites experimentally
 3. Consider as therapeutic targets
 ")
 
-## Step 9: Save Results ----
-cat("\n--- Step 9: Saving Reporter Metabolite Results ---\n")
+## Step 7: Save Results ----
+cat("\n--- Step 7: Saving Reporter Metabolite Results ---\n")
 
-# Save reporter results
+# Save detailed results using custom function
+saveReporterMetabolites(reporter_results, "data/Reporter_Metabolites_output.txt")
+
+# Also create a simple summary table for the "all genes" test
+reporter_df <- data.frame(
+  Metabolite_ID = reporter_all$mets,
+  Metabolite_Name = reporter_all$metNames,
+  Z_Score = reporter_all$metZScores,
+  P_Value = reporter_all$metPValues,
+  N_Genes = reporter_all$metNGenes,
+  Mean_Z = reporter_all$meanZ,
+  Std_Z = reporter_all$stdZ,
+  stringsAsFactors = FALSE
+)
+
 write.table(
-  reporter_summary,
-  file = "data/Reporter_Metabolites_output.txt",
+  reporter_df,
+  file = "data/Reporter_Metabolites_summary.txt",
   sep = "\t",
   quote = FALSE,
-  row.names = TRUE
+  row.names = FALSE
 )
 
-cat("Reporter metabolite results saved to data/Reporter_Metabolites_output.txt\n")
+cat("Reporter metabolite summary saved to data/Reporter_Metabolites_summary.txt\n")
 
-## Step 10: Visualization ----
-cat("\n--- Step 10: Visualizing Reporter Metabolites ---\n")
+## Step 8: Visualization ----
+cat("\n--- Step 8: Visualizing Reporter Metabolites ---\n")
 
-# Create heatmap showing up- and down-regulated reporter metabolites
-top_reporters <- head(reporter_summary, 20)
+# Get top 20 metabolites by Z-score
+top_n <- min(20, length(reporter_all$mets))
+top_indices <- 1:top_n
 
-# Create a matrix for heatmap
-heatmap_data <- data.frame(
-  Up = -log10(top_reporters$`p adj (dist.dir.up)`),
-  Down = -log10(top_reporters$`p adj (dist.dir.dn)`)
+# Create data for visualization
+viz_data <- data.frame(
+  Metabolite = reporter_all$metNames[top_indices],
+  Z_Score = reporter_all$metZScores[top_indices],
+  Neg_Log_P = -log10(reporter_all$metPValues[top_indices]),
+  N_Genes = reporter_all$metNGenes[top_indices]
 )
 
-# Get metabolite names and clean them up
-if ("Name" %in% colnames(top_reporters)) {
-  metabolite_names <- top_reporters$Name
-} else {
-  metabolite_names <- rownames(top_reporters)
-}
+# Clean up metabolite names for display
+viz_data$Metabolite <- gsub("\\[.*\\]", "", viz_data$Metabolite)  # Remove compartment
+viz_data$Metabolite <- substr(viz_data$Metabolite, 1, 40)  # Truncate long names
 
-# Clean up metabolite names (remove prefixes and replace underscores)
-metabolite_names <- gsub("^HMR_", "", metabolite_names)
-metabolite_names <- gsub("^M_", "", metabolite_names)
-metabolite_names <- gsub("_[a-z]$", "", metabolite_names)  # Remove compartment suffixes like _c, _m
-metabolite_names <- gsub("_", " ", metabolite_names)
-rownames(heatmap_data) <- metabolite_names
-
-# Save heatmap to PDF
-pdf("figures/Module4_reporter_metabolites.pdf", width = 10, height = 12)
-reporter_heatmap <- pheatmap(
-  as.matrix(heatmap_data),
-  cluster_cols = FALSE,
-  cluster_rows = TRUE,
-  color = colorRampPalette(c("white", "orange", "red"))(50),
-  main = "Top 20 Reporter Metabolites",
-  fontsize_row = 10,
-  fontsize_col = 12,
-  display_numbers = FALSE
+# Create bar plot of Z-scores
+pdf("figures/Module4_reporter_metabolites.pdf", width = 12, height = 10)
+par(mar = c(5, 15, 4, 2))
+barplot(
+  viz_data$Z_Score,
+  names.arg = viz_data$Metabolite,
+  horiz = TRUE,
+  las = 1,
+  col = ifelse(viz_data$Z_Score > 0, "firebrick", "steelblue"),
+  main = "Top 20 Reporter Metabolites (Ordered by Z-score)",
+  xlab = "Aggregated Z-score",
+  cex.names = 0.8
 )
+abline(v = 0, lty = 2, col = "gray50")
 dev.off()
 
-cat("Reporter metabolite heatmap saved to figures/Module4_reporter_metabolites.pdf\n")
+cat("Reporter metabolite plot saved to figures/Module4_reporter_metabolites.pdf\n")
+
+# If up/down results exist, create comparison heatmap
+if (length(reporter_results) == 3) {
+  cat("\nCreating up/down regulation heatmap...\n")
+
+  # Get top metabolites from each test
+  top_all <- reporter_results[[1]]$mets[1:min(15, length(reporter_results[[1]]$mets))]
+  top_up <- reporter_results[[2]]$mets[1:min(15, length(reporter_results[[2]]$mets))]
+  top_down <- reporter_results[[3]]$mets[1:min(15, length(reporter_results[[3]]$mets))]
+
+  # Union of top metabolites
+  all_top_mets <- unique(c(top_all, top_up, top_down))
+
+  # Create matrix
+  heatmap_data <- matrix(0, nrow = length(all_top_mets), ncol = 3)
+  colnames(heatmap_data) <- c("All Genes", "Up-regulated", "Down-regulated")
+  rownames(heatmap_data) <- all_top_mets
+
+  for (i in 1:length(all_top_mets)) {
+    met <- all_top_mets[i]
+
+    # All genes
+    idx <- which(reporter_results[[1]]$mets == met)
+    if (length(idx) > 0) {
+      heatmap_data[i, 1] <- reporter_results[[1]]$metZScores[idx]
+    }
+
+    # Up-regulated
+    idx <- which(reporter_results[[2]]$mets == met)
+    if (length(idx) > 0) {
+      heatmap_data[i, 2] <- reporter_results[[2]]$metZScores[idx]
+    }
+
+    # Down-regulated
+    idx <- which(reporter_results[[3]]$mets == met)
+    if (length(idx) > 0) {
+      heatmap_data[i, 3] <- reporter_results[[3]]$metZScores[idx]
+    }
+  }
+
+  # Get metabolite names
+  met_names <- sapply(all_top_mets, function(met) {
+    idx <- which(reporter_all$mets == met)
+    if (length(idx) > 0) {
+      name <- reporter_all$metNames[idx]
+      name <- gsub("\\[.*\\]", "", name)
+      return(substr(name, 1, 40))
+    }
+    return(met)
+  })
+  rownames(heatmap_data) <- met_names
+
+  pdf("figures/Module4_reporter_metabolites_heatmap.pdf", width = 10, height = 12)
+  pheatmap(
+    heatmap_data,
+    cluster_cols = FALSE,
+    cluster_rows = TRUE,
+    color = colorRampPalette(c("blue", "white", "red"))(50),
+    main = "Reporter Metabolites: Up vs Down Regulation",
+    fontsize_row = 9,
+    fontsize_col = 11,
+    display_numbers = FALSE,
+    breaks = seq(-max(abs(heatmap_data)), max(abs(heatmap_data)), length.out = 51)
+  )
+  dev.off()
+
+  cat("Heatmap saved to figures/Module4_reporter_metabolites_heatmap.pdf\n")
+}
 
 cat("\n=== MODULE 4 COMPLETE ===\n")
 

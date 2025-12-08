@@ -46,12 +46,12 @@ required_packages <- c(
   # Bioconductor packages
   "DESeq2",
   "piano",
-  "rsbml",
 
   # CRAN packages
   "tidyverse",
   "ggplot2",
   "pheatmap",
+  "XML",
   "corrplot",
   "Hmisc",
   "reshape2",
