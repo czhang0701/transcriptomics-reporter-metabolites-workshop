@@ -374,153 +374,11 @@ cat("\n=== MODULE 2 COMPLETE ===\n")
 
 
 # ============================================================================
-# MODULE 3: CO-EXPRESSION NETWORK ANALYSIS (15 minutes)
-# Building gene correlation networks
-# ============================================================================
-
-cat("\n=== MODULE 3: CO-EXPRESSION NETWORK ANALYSIS ===\n")
-
-# Load required libraries
-library(Hmisc)
-library(corrplot)
-library(reshape2)
-
-## Step 1: Load FPKM Data ----
-cat("\n--- Step 1: Loading Expression Data ---\n")
-
-# Load FPKM (normalized expression)
-FPKM <- read.table("data/FPKM_selected.txt",
-                   header = TRUE,
-                   row.names = 1,
-                   check.names = FALSE)
-
-cat("FPKM matrix dimensions:", dim(FPKM), "\n")
-
-## Step 2: Filter for Significant Genes ----
-cat("\n--- Step 2: Filtering Significant Genes ---\n")
-
-# Get significant genes from Module 1
-sig_gene_ids <- rownames(res)[res$padj < 0.05 & !is.na(res$padj)]
-
-# Subset FPKM to significant genes only
-FPKM_sig <- FPKM[rownames(FPKM) %in% sig_gene_ids, ]
-
-cat("Significant genes for network:", nrow(FPKM_sig), "\n")
-
-# For faster computation, limit to top genes by variance
-gene_vars <- apply(FPKM_sig, 1, var)
-top_genes <- names(sort(gene_vars, decreasing = TRUE)[1:min(200, nrow(FPKM_sig))])
-FPKM_network <- FPKM_sig[top_genes, ]
-
-cat("Genes for network analysis:", nrow(FPKM_network), "\n")
-
-## Step 3: Calculate Correlations ----
-cat("\n--- Step 3: Calculating Spearman Correlations ---\n")
-
-# Transpose (genes as columns)
-FPKM_transposed <- t(FPKM_network)
-
-# Calculate Spearman correlation with p-values
-cor_result <- rcorr(FPKM_transposed, type = "spearman")
-
-cat("Correlation matrix calculated\n")
-cat("Correlation matrix dimensions:", dim(cor_result$r), "\n")
-
-## Step 4: Convert to Long Format ----
-cat("\n--- Step 4: Preparing Network Data ---\n")
-
-# Get correlation matrix and p-values
-cor_matrix <- cor_result$r
-pval_matrix <- cor_result$P
-
-# Convert to long format
-cor_long <- melt(cor_matrix, varnames = c("Gene1", "Gene2"), value.name = "Correlation")
-pval_long <- melt(pval_matrix, varnames = c("Gene1", "Gene2"), value.name = "Pvalue")
-
-# Combine
-network_data <- merge(cor_long, pval_long, by = c("Gene1", "Gene2"))
-
-# Remove self-correlations
-network_data <- network_data[network_data$Gene1 != network_data$Gene2, ]
-
-# Remove duplicate pairs (keep only upper triangle)
-network_data <- network_data[as.character(network_data$Gene1) < as.character(network_data$Gene2), ]
-
-cat("Total gene pairs:", nrow(network_data), "\n")
-
-## Step 5: FDR Correction ----
-cat("\n--- Step 5: Multiple Testing Correction ---\n")
-
-# FDR correction
-network_data$FDR <- p.adjust(network_data$Pvalue, method = "fdr")
-
-cat("FDR correction applied\n")
-
-## Step 6: Filter Significant Correlations ----
-cat("\n--- Step 6: Filtering Significant Correlations ---\n")
-
-# Filter for significant and strong correlations
-significant_network <- network_data[
-  network_data$FDR < 0.01 &
-  abs(network_data$Correlation) > 0.7,
-]
-
-cat("Significant correlations (FDR < 0.01, |r| > 0.7):", nrow(significant_network), "\n")
-
-# Positive and negative correlations
-pos_cor <- sum(significant_network$Correlation > 0)
-neg_cor <- sum(significant_network$Correlation < 0)
-
-cat("Positive correlations:", pos_cor, "\n")
-cat("Negative correlations:", neg_cor, "\n")
-
-## Step 7: Visualize Top Correlations ----
-cat("\n--- Step 7: Visualizing Network ---\n")
-
-# Get top genes by number of connections
-gene_connections <- table(c(as.character(significant_network$Gene1),
-                           as.character(significant_network$Gene2)))
-top_connected_genes <- names(sort(gene_connections, decreasing = TRUE)[1:min(50, length(gene_connections))])
-
-# Subset correlation matrix for visualization
-cor_subset <- cor_matrix[top_connected_genes, top_connected_genes]
-
-# Create correlation plot
-pdf("figures/Module3_correlation_network.pdf", width = 10, height = 10)
-corrplot(cor_subset,
-         method = "color",
-         type = "upper",
-         tl.col = "black",
-         tl.cex = 0.6,
-         title = "Co-expression Network (Top 50 Connected Genes)")
-dev.off()
-
-cat("Correlation plot saved to figures/Module3_correlation_network.pdf\n")
-
-## Step 8: Save Network Data ----
-cat("\n--- Step 8: Saving Network Data ---\n")
-
-# Save significant correlations
-write.table(
-  significant_network,
-  file = "data/Coexpression_network.txt",
-  sep = "\t",
-  quote = FALSE,
-  row.names = FALSE
-)
-
-cat("Network data saved to data/Coexpression_network.txt\n")
-cat("Can be imported into Cytoscape for visualization\n")
-
-cat("\n=== MODULE 3 COMPLETE ===\n")
-
-
-# ============================================================================
-# MODULE 4: REPORTER METABOLITE ANALYSIS (60 minutes) ⭐ MAIN FOCUS
+# MODULE 3: REPORTER METABOLITE ANALYSIS (60 minutes) ⭐ MAIN FOCUS
 # Identifying key metabolites driving metabolic changes
 # ============================================================================
 
-cat("\n=== MODULE 4: REPORTER METABOLITE ANALYSIS ===\n")
+cat("\n=== MODULE 3: REPORTER METABOLITE ANALYSIS ===\n")
 
 # Load required libraries
 library(XML)
@@ -676,7 +534,7 @@ Module 2 (GSEA):
 Module 3 (Networks):
   → Found", nrow(significant_network), "significant gene correlations
 
-Module 4 (Reporter Metabolites): ⭐
+Module 3 (Reporter Metabolites): ⭐
   → Identified", length(reporter_all$mets), "metabolites with scores
   → Found", sum(reporter_all$metPValues < 0.05), "significant reporter metabolites (P < 0.05)
   → KEY METABOLIC HUBS identified!
@@ -831,7 +689,7 @@ if (length(reporter_results) == 3) {
   cat("Heatmap saved to figures/Module4_reporter_metabolites_heatmap.pdf\n")
 }
 
-cat("\n=== MODULE 4 COMPLETE ===\n")
+cat("\n=== MODULE 3 COMPLETE ===\n")
 
 
 # ============================================================================
@@ -873,3 +731,277 @@ cat("===========================================================================
 
 cat("\nSession Information:\n")
 sessionInfo()
+
+
+# ============================================================================
+# MODULE 4: ADVANCED CO-EXPRESSION NETWORK ANALYSIS (30 minutes)
+# Module detection, clustering, and functional enrichment
+# ============================================================================
+
+cat("\n=== MODULE 4: ADVANCED CO-EXPRESSION NETWORK ANALYSIS ===\n")
+
+# Load required libraries
+library(Hmisc)
+library(igraph)
+library(reshape2)
+
+# Load custom functions
+source("scripts/coexpression_modules.R")
+
+## Step 1: Load Expression Data ----
+cat("\n--- Step 1: Loading Expression Data ---\n")
+
+# Load FPKM (normalized expression)
+FPKM <- read.table("data/FPKM_selected.txt",
+                   header = TRUE,
+                   row.names = 1,
+                   check.names = FALSE)
+
+cat("FPKM matrix dimensions:", nrow(FPKM), "genes x", ncol(FPKM), "samples\n")
+
+## Step 2: Filter for Analysis ----
+cat("\n--- Step 2: Filtering Genes ---\n")
+
+# Option 1: Use significant genes from Module 1
+sig_gene_ids <- rownames(res)[res$padj < 0.05 & !is.na(res$padj)]
+FPKM_filtered <- FPKM[rownames(FPKM) %in% sig_gene_ids, ]
+
+cat("Significant genes:", nrow(FPKM_filtered), "\n")
+
+# Option 2: For faster computation, use top variable genes
+gene_vars <- apply(FPKM_filtered, 1, var)
+top_genes <- names(sort(gene_vars, decreasing = TRUE)[1:min(500, nrow(FPKM_filtered))])
+FPKM_network <- FPKM_filtered[top_genes, ]
+
+cat("Genes for network analysis:", nrow(FPKM_network), "\n")
+
+## Step 3: Calculate Co-expression Network ----
+cat("\n--- Step 3: Calculating Co-expression Network ---\n")
+cat("This may take 2-3 minutes...\n\n")
+
+# Calculate correlations with FDR correction
+coexp_network <- calculateCoexpression(
+  expr_matrix = FPKM_network,
+  pval_threshold = 0.05,
+  pos_only = FALSE
+)
+
+cat("\nSummary statistics:\n")
+cat("  Positive correlations:", sum(coexp_network$Correlation > 0), "\n")
+cat("  Negative correlations:", sum(coexp_network$Correlation < 0), "\n")
+cat("  Mean |correlation|:", round(mean(abs(coexp_network$Correlation)), 3), "\n")
+
+# Save full network
+write.table(
+  coexp_network,
+  file = "data/Coexpression_full_network.txt",
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE
+)
+
+cat("\nFull network saved to: data/Coexpression_full_network.txt\n")
+
+## Step 4: Detect Network Modules (Positive Correlations) ----
+cat("\n--- Step 4: Detecting Modules in Positive Network ---\n")
+
+modules_pos <- detectModules(
+  edge_list = coexp_network,
+  top_percent = 0.1,      # Use top 10% of correlations
+  min_module_size = 30,   # Minimum 30 genes per module
+  positive = TRUE
+)
+
+cat("\nModule summary:\n")
+print(table(modules_pos$modules$Module))
+
+## Step 5: Detect Modules (Negative Correlations) ----
+cat("\n--- Step 5: Detecting Modules in Negative Network ---\n")
+
+modules_neg <- detectModules(
+  edge_list = coexp_network,
+  top_percent = 0.1,
+  min_module_size = 30,
+  positive = FALSE
+)
+
+cat("\nNegative module summary:\n")
+if (nrow(modules_neg$modules) > 0) {
+  print(table(modules_neg$modules$Module))
+} else {
+  cat("No large negative modules found\n")
+}
+
+## Step 6: Functional Enrichment of Modules ----
+cat("\n--- Step 6: Enriching Modules with Pathways ---\n")
+
+# Enrich positive modules
+cat("\nEnriching positive correlation modules...\n")
+enrichment_pos <- enrichModules(
+  modules = modules_pos$modules,
+  gsc = gsc,
+  background = nrow(FPKM_network)
+)
+
+# Save enrichment results
+if (length(enrichment_pos) > 0) {
+  # Check if openxlsx is available
+  if (requireNamespace("openxlsx", quietly = TRUE)) {
+    saveModuleEnrichment(
+      enrichment_results = enrichment_pos,
+      output_file = "data/Module_Enrichment_Positive.xlsx"
+    )
+  } else {
+    cat("Note: Install 'openxlsx' package to save Excel output\n")
+  }
+}
+
+## Step 7: Biological Interpretation ----
+cat("\n--- Step 7: Interpreting Network Modules ---\n")
+
+cat("
+POSITIVE CORRELATION MODULES:
+Genes with positive correlations tend to be:
+- Co-regulated by same transcription factors
+- Part of same biological process
+- Coordinately up/down-regulated together
+
+")
+
+# Show top enriched pathways for each module
+if (length(enrichment_pos) > 0) {
+  for (mod_id in names(enrichment_pos)) {
+    cat("\n--- Module", mod_id, "---\n")
+    top_paths <- head(enrichment_pos[[mod_id]], 3)
+    if (nrow(top_paths) > 0) {
+      for (i in 1:nrow(top_paths)) {
+        cat("  *", rownames(top_paths)[i], "(FDR =",
+            format(top_paths$FDR[i], scientific = TRUE, digits = 2), ")\n")
+      }
+    }
+  }
+}
+
+cat("\nNEGATIVE CORRELATION MODULES:\n")
+if (nrow(modules_neg$modules) > 0) {
+  cat("Found", length(unique(modules_neg$modules$Module)), "modules\n")
+  cat("Negative correlations may indicate:\n")
+  cat("- Antagonistic regulation\n")
+  cat("- Different cell types/states\n")
+  cat("- Metabolic trade-offs\n")
+} else {
+  cat("No significant negative modules detected\n")
+}
+
+## Step 8: Export for Cytoscape ----
+cat("\n--- Step 8: Exporting Network for Visualization ---\n")
+
+# Export positive network
+exportCytoscape(
+  modules_result = modules_pos,
+  output_prefix = "data/Network_Positive"
+)
+
+# Export negative network if exists
+if (nrow(modules_neg$modules) > 0) {
+  exportCytoscape(
+    modules_result = modules_neg,
+    output_prefix = "data/Network_Negative"
+  )
+}
+
+## Step 9: Summary Visualization ----
+cat("\n--- Step 9: Creating Summary Visualizations ---\n")
+
+# Module size distribution
+pdf("figures/Module4_module_sizes.pdf", width = 8, height = 6)
+par(mfrow = c(1, 1))
+module_sizes <- table(modules_pos$modules$Module)
+barplot(
+  module_sizes,
+  main = "Module Sizes (Positive Correlations)",
+  xlab = "Module ID",
+  ylab = "Number of Genes",
+  col = rainbow(length(module_sizes)),
+  las = 1
+)
+dev.off()
+
+cat("Module size plot saved to: figures/Module4_module_sizes.pdf\n")
+
+## Step 10: Integration with Previous Modules ----
+cat("\n--- Step 10: Connecting Results Across All Modules ---\n")
+
+cat("
+INTEGRATION SUMMARY:
+
+Module 1 (DESeq2):
+  -> Found", sig_genes, "differentially expressed genes
+
+Module 2 (GSEA):
+  -> Identified enriched biological pathways
+
+Module 3 (Reporter Metabolites):
+  -> Found", length(reporter_all$mets), "metabolites with scores
+  -> Identified KEY METABOLIC HUBS
+
+Module 4 (Co-expression Networks):
+  -> Detected", length(unique(modules_pos$modules$Module)), "co-expression modules
+  -> Modularity:", round(modules_pos$modularity, 3), "
+  -> Functional enrichment completed
+
+BIOLOGICAL INSIGHTS:
+1. Differential expression identifies WHICH genes change
+2. GSEA identifies enriched PATHWAYS
+3. Reporter metabolites find KEY METABOLIC NODES
+4. Co-expression modules reveal COORDINATED REGULATION
+
+NEXT STEPS:
+- Validate modules experimentally
+- Compare module membership with Reporter Metabolites
+- Investigate hub genes in each module
+- Consider network-based drug target identification
+")
+
+cat("\n=== MODULE 4 COMPLETE ===\n")
+
+
+# ============================================================================
+# WORKSHOP COMPLETE!
+# ============================================================================
+
+cat("\n")
+cat("============================================================================\n")
+cat("                    WORKSHOP COMPLETE!                                      \n")
+cat("============================================================================\n")
+cat("\n")
+cat("You have successfully:\n")
+cat("  * Analyzed differential gene expression (DESeq2)\n")
+cat("  * Identified enriched pathways (PIANO GSEA)\n")
+cat("  * Discovered reporter metabolites (Patil & Nielsen 2005)\n")
+cat("  * Built co-expression modules with functional enrichment\n")
+cat("\n")
+cat("Output files generated:\n")
+cat("  * data/DESeq_output.txt\n")
+cat("  * data/Piano_output.txt\n")
+cat("  * data/Reporter_Metabolites_output.txt\n")
+cat("  * data/Reporter_Metabolites_summary.txt\n")
+cat("  * data/Coexpression_full_network.txt\n")
+cat("  * data/Network_Positive_nodes.txt\n")
+cat("  * data/Network_Positive_edges.txt\n")
+cat("  * data/Module_Enrichment_Positive.xlsx\n")
+cat("\n")
+cat("Figures generated:\n")
+cat("  * figures/Module1_volcano_plot.pdf\n")
+cat("  * figures/Module2_pathway_heatmap.pdf\n")
+cat("  * figures/Module3_reporter_metabolites.pdf\n")
+cat("  * figures/Module3_reporter_metabolites_heatmap.pdf\n")
+cat("  * figures/Module4_module_sizes.pdf\n")
+cat("\n")
+cat("For more information:\n")
+cat("  * See README.md for workshop overview\n")
+cat("  * See CLAUDE.md for technical details\n")
+cat("  * See tutorials/ folder for step-by-step guides\n")
+cat("\n")
+cat("Thank you for participating!\n")
+cat("============================================================================\n")
