@@ -836,14 +836,47 @@ FPKM <- read.table("data/FPKM_selected.txt",
 
 cat("FPKM matrix dimensions:", nrow(FPKM), "genes x", ncol(FPKM), "samples\n")
 
+## --- NEW: Harmonize IDs (Ensembl -> Gene Symbol) ----
+cat("\n--- Step 1.5: Converting Ensembl IDs to Gene Symbols for Module 4 ---\n")
+
+# Load mapping file (do this here to make Module 4 runnable standalone)
+ensembl2gene <- read.table("data/Ensembl2gene.tsv",
+                           header = TRUE,
+                           sep = "\t")
+
+# Map FPKM rownames (Ensembl) -> symbols
+symbols <- ensembl2gene$Gene[match(rownames(FPKM), ensembl2gene$Ensembl)]
+
+# Remove genes without symbols
+keep <- !is.na(symbols)
+FPKM <- FPKM[keep, , drop = FALSE]
+rownames(FPKM) <- symbols[keep]
+
+# Collapse duplicated symbols (recommended)
+if (any(duplicated(rownames(FPKM)))) {
+  tmp <- data.frame(SYMBOL = rownames(FPKM), FPKM, check.names = FALSE)
+  tmp2 <- aggregate(. ~ SYMBOL, data = tmp, FUN = mean)
+  rownames(tmp2) <- tmp2$SYMBOL
+  tmp2$SYMBOL <- NULL
+  FPKM <- as.matrix(tmp2)
+}
+
+cat("FPKM after ID conversion:", nrow(FPKM), "symbols x", ncol(FPKM), "samples\n")
+
 ## Step 2: Filter for Analysis ----
 cat("\n--- Step 2: Filtering Genes ---\n")
 
 # Option 1: Use significant genes from Module 1
 sig_gene_ids <- rownames(res)[res$padj < 0.05 & !is.na(res$padj)]
-FPKM_filtered <- FPKM[rownames(FPKM) %in% sig_gene_ids, ]
 
-cat("Significant genes:", nrow(FPKM_filtered), "\n")
+# Convert sig Ensembl IDs -> symbols for matching with converted FPKM
+sig_gene_symbols <- ensembl2gene$Gene[match(sig_gene_ids, ensembl2gene$Ensembl)]
+sig_gene_symbols <- sig_gene_symbols[!is.na(sig_gene_symbols)]
+
+FPKM_filtered <- FPKM[rownames(FPKM) %in% sig_gene_symbols, , drop = FALSE]
+
+cat("Significant genes (symbol-matched):", nrow(FPKM_filtered), "\n")
+
 
 # Option 2: For faster computation, use top variable genes
 gene_vars <- apply(FPKM_filtered, 1, var)
