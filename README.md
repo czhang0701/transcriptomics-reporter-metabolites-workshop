@@ -23,9 +23,9 @@ Learn to analyze RNA-seq data and identify key metabolic reprogramming events th
 - ✅ Install R, RStudio, and packages (Windows & Mac)
 - ✅ Run differential expression with DESeq2
 - ✅ Perform pathway enrichment with PIANO
-- ✅ Build co-expression networks
 - ✅ **Identify reporter metabolites** ⭐ MAIN GOAL
 - ✅ **Interpret metabolic reprogramming** ⭐
+- ✅ Build advanced co-expression networks with module detection
 
 ### Bonus (Fast Learners or After Workshop):
 - 📚 MOFA2 multi-omics integration (optional)
@@ -46,11 +46,11 @@ Learn to analyze RNA-seq data and identify key metabolic reprogramming events th
 │ ─────────────────────────────────────────────── │
 │ 1:05-1:15 (10m) ☕ BREAK                        │
 │ ─────────────────────────────────────────────── │
-│ 1:15-1:30 (15m) Module 3: Co-expression         │
-│ 1:30-2:30 (60m) ⭐ Module 4: Reporter Metabolites│
-│ 2:30-2:50 (20m) Discussion & Interpretation     │
+│ 1:15-2:15 (60m) ⭐ Module 3: Reporter Metabolites│
+│ 2:15-2:45 (30m) Module 4: Advanced Co-expression│
+│ 2:45-2:55 (10m) Discussion & Interpretation     │
 │ ─────────────────────────────────────────────── │
-│ 2:50-3:00 (10m) Wrap-up & Next Steps           │
+│ 2:55-3:00 (5m)  Wrap-up & Next Steps           │
 └─────────────────────────────────────────────────┘
 
 BONUS (Optional - during workshop if fast, or after):
@@ -91,8 +91,8 @@ BONUS (Optional - during workshop if fast, or after):
 ### **Full Tutorials** (Reference/Self-Study)
 - `tutorials/Module1_DifferentialExpression.md` - Detailed DESeq2 guide
 - `tutorials/Module2_GSEA.md` - Detailed GSEA guide
-- `tutorials/Module3_Coexpression.md` - Detailed network guide
-- `tutorials/Module4_ReporterMetabolites.md` - Detailed reporter metabolite guide
+- `tutorials/Module3_ReporterMetabolites.md` - Detailed reporter metabolite guide ⭐
+- `tutorials/Module4_Coexpression.md` - Advanced network analysis guide
 - `tutorials/Module5_MOFA2_Introduction.md` - MOFA2 bonus (optional)
 
 ### **Scripts**
@@ -133,10 +133,10 @@ BONUS (Optional - during workshop if fast, or after):
 | Time | Module | Focus | Duration |
 |------|--------|-------|----------|
 | 0:00 | Setup | Install R/RStudio/Packages | 30 min |
-| 0:30 | **1** | Differential Expression | 20 min |
-| 0:50 | **2** | Gene Set Enrichment | 15 min |
-| 1:15 | **3** | Co-expression Networks | 15 min |
-| 1:30 | **4** | ⭐ Reporter Metabolites | 60 min |
+| 0:30 | **1** | Differential Expression (DESeq2) | 20 min |
+| 0:50 | **2** | Gene Set Enrichment (PIANO) | 15 min |
+| 1:15 | **3** | ⭐ Reporter Metabolites (Patil & Nielsen 2005) | 60 min |
+| 2:15 | **4** | Advanced Co-expression Networks + Module Detection | 30 min |
 
 **Total**: 2 hours 20 minutes + 20 min breaks + 20 min discussion = **3 hours**
 
