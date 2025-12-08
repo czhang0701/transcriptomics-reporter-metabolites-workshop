@@ -1,4 +1,4 @@
-# Workshop Questions and Answers
+# Workshop Questions
 
 Quick reference guide for discussion questions throughout the workshop.
 
