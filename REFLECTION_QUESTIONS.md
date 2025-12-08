@@ -112,10 +112,11 @@ Different metabolites have different numbers of associated genes. How does this 
 4. **Regulatory complexity**: Anabolic genes up, catabolic genes down (or vice versa)
 5. **Feedback loops**: Metabolite accumulation triggers compensatory responses
 
-**Example**: Lactate
-- Lactate PRODUCTION genes (LDHA) upregulated → Warburg effect
-- Lactate IMPORT genes (MCT1) downregulated → Cancer cells export lactate
-- Result: Lactate appears in both up AND down analyses!
+**Example (Hypothetical)**: Lactate
+- IF lactate PRODUCTION genes (LDHA) are upregulated → Warburg effect
+- AND lactate EXPORT genes (SLC16A3) are upregulated → Cancer cells export lactate
+- BUT lactate CONSUMPTION genes (downstream enzymes) are downregulated
+- THEN: Lactate would appear in both up AND down analyses!
 </details>
 
 **Q3.5**: If a metabolite has a very high Z-score but only 3 neighboring genes, should you trust it?

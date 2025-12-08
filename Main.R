@@ -741,12 +741,13 @@ Q2: Why do we aggregate Z-scores instead of just counting significant genes?
 Q3: ⭐ IMPORTANT: Why might a metabolite show up as significant in BOTH
     up-regulated AND down-regulated analyses?
 
-    Example: Lactate
-    - Lactate PRODUCTION genes (LDHA) might be upregulated
-    - Lactate IMPORT genes (MCT1) might be downregulated
-    - Result: Lactate appears in BOTH analyses!
+    Hypothetical Example: IF lactate were a reporter metabolite:
+    - PRODUCTION genes (e.g., LDHA) might be upregulated
+    - EXPORT genes (e.g., SLC16A3) might be upregulated
+    - BUT CONSUMPTION genes (downstream enzymes) might be downregulated
+    - THEN: Lactate would appear in BOTH up AND down analyses!
 
-    This happens because:
+    This can happen because:
     • Metabolic flux can reverse (forward/reverse reactions)
     • Same metabolite in different compartments (cytosol vs mitochondria)
     • Competing pathways (multiple ways to produce/consume)
