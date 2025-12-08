@@ -15,7 +15,7 @@
 
 # SET WORKING DIRECTORY
 # Adjust this path to where you extracted the workshop materials
-setwd("C:/path/to/workshop_materials")  # CHANGE THIS PATH!
+setwd("C:/work/For course/MSc Microbiome KCL 2025/Integerative_Rui/Materials/workshop_materials/")  # CHANGE THIS PATH!
 
 # Verify you're in the correct directory
 getwd()
