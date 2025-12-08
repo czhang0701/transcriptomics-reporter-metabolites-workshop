@@ -163,10 +163,20 @@ enrichModules <- function(modules, gsc, background = NULL) {
     # Get genes in this module
     mod_genes <- modules$Gene[modules$Module == mod_id]
 
-    # Run enrichment
+    # Create gene stats vector (1 for genes in module, 0 for others)
+    # For over-representation analysis
+    all_genes <- unique(modules$Gene)
+    gene_stats <- rep(0, length(all_genes))
+    names(gene_stats) <- all_genes
+    gene_stats[mod_genes] <- 1
+
+    # Run enrichment (Fisher's exact test for over-representation)
     gsaRes <- runGSA(
-      genes = mod_genes,
+      geneLevelStats = gene_stats,
       gsc = gsc,
+      geneSetStat = "fisher",
+      signifMethod = "geneSampling",
+      nPerm = 1000,
       gsSizeLim = c(10, 500),
       adjMethod = "fdr",
       ncpus = 1
