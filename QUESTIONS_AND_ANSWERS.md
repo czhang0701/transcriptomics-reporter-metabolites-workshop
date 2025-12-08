@@ -1,7 +1,5 @@
 # Workshop Questions
 
-Quick reference guide for discussion questions throughout the workshop.
-
 ---
 
 ## Module 1: Differential Expression (DESeq2)
@@ -24,7 +22,6 @@ Quick reference guide for discussion questions throughout the workshop.
 ### Q4: Why do some genes have high fold-change but are NOT significant?
 
 
-**Key insight**: Significance considers BOTH effect size (fold change) AND confidence (variance, sample size). A large fold change with high uncertainty is not statistically significant.
 
 ---
 
